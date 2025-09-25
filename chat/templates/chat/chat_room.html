@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<br><br><br>
+<div class="container py-5">
+    <h2 class="text-center mb-4 fw-bold" style="color: #333;">Chat with Owner</h2>
+    <div class="card shadow-lg rounded-3 border-0" style="box-shadow: 0 8px 30px rgba(0,0,0,0.12) !important;">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center" 
+             style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important; border-radius: 0.5rem 0.5rem 0 0; padding: 1rem;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-comments me-2"></i>
+                <strong>Chat about: {{ listing.title }}</strong>
+            </div>
+            <span class="badge rounded-pill" style="background-color: rgba(255,255,255,0.25); color: white; backdrop-filter: blur(5px); padding: 0.5rem 1rem;">
+                {{ listing.get_listing_type|capfirst }}
+            </span>
+        </div>
+        
+        <div class="card-body chat-box p-4" id="chatBox" 
+             style="height: 450px; overflow-y: auto; background-color: #f8f9fa; background-image: url('{% static 'img/chat-bg-pattern.png' %}'), linear-gradient(to bottom, #f8f9fa, #eaeef2); background-size: 300px; background-repeat: repeat;">
+            
+            {% for message in messages %}
+                <div class="chat-message {% if message.sender == user %} text-end {% endif %} mb-4 animate__animated animate__fadeIn" style="animation-duration: 0.3s;">
+                    <div class="p-3 rounded-3 {% if message.sender == user %} text-white {% else %} bg-white {% endif %}" 
+                         style="display: inline-block; max-width: 75%; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+                                {% if message.sender == user %} 
+                                    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); 
+                                    border-radius: 18px 0 18px 18px;
+                                {% else %} 
+                                    border-radius: 0 18px 18px 18px;
+                                {% endif %}">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong>{{ message.sender.username }}</strong>
+                            {% if message.sender == user %}
+                                <i class="fas fa-check-double ms-2" style="font-size: 0.75rem; opacity: 0.7;"></i>
+                            {% endif %}
+                        </div>
+                        <div style="word-break: break-word;">{{ message.message }}</div>
+                        <div class="text-muted small mt-2" style="font-size: 0.7rem; opacity: 0.8;">{{ message.timestamp|date:"M d, Y H:i" }}</div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="text-center text-muted py-5">
+                    <i class="far fa-comment-dots mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="card-footer p-3" style="background-color: white; border-top: 1px solid rgba(0,0,0,0.05);">
+            <form id="chatForm" method="post" action="{% url 'send_message' listing_type=listing.get_listing_type listing_id=listing.id %}">
+                {% csrf_token %}
+                <div class="input-group" style="background-color: #f8f9fa; border-radius: 30px; padding: 5px; box-shadow: inset 0 1px 3px rgba(32, 32, 32, 0.05);">
+                    <input type="text" name="message" id="chatMessage" class="form-control border-0" 
+                           style="background: transparent; padding: 12px 20px; box-shadow: none;" placeholder="Type a message..." required>
+                    <button type="submit" class="btn btn-danger" 
+                            style="border-radius: 50px; padding: 10px 20px; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); border: none; box-shadow: 0 3px 5px rgba(231, 76, 60, 0.3); transition: all 0.2s ease;">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add animate.css for animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<!-- JavaScript for real-time chat -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let chatBox = document.getElementById("chatBox");
+        // Auto-scroll to the latest message
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+        // Make sure Font Awesome is loaded
+        if (typeof FontAwesome === 'undefined') {
+            // Add Font Awesome if not already included in base template
+            let fontAwesome = document.createElement('link');
+            fontAwesome.rel = 'stylesheet';
+            fontAwesome.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
+            document.head.appendChild(fontAwesome);
+        }
+        
+        // Handle sending messages via AJAX
+        document.getElementById("chatForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let messageInput = document.getElementById("chatMessage");
+            let message = messageInput.value.trim();
+            if (message === "") return;
+            
+            // Add "sending" visual feedback
+            let sendButton = this.querySelector('button[type="submit"]');
+            let originalContent = sendButton.innerHTML;
+            sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            sendButton.disabled = true;
+            
+            fetch(this.action, {
+                method: "POST",
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Append new message to chat box dynamically
+                    let newMessage = document.createElement("div");
+                    newMessage.classList.add("chat-message", "text-end", "mb-4", "animate__animated", "animate__fadeIn");
+                    newMessage.style.animationDuration = "0.3s";
+                    
+                    // Message HTML with proper styling to match other messages
+                    newMessage.innerHTML = `
+                        <div class="p-3 rounded-3 text-white" 
+                             style="display: inline-block; max-width: 75%; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                                    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+                                    border-radius: 18px 0 18px 18px;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong>You</strong>
+                                <i class="fas fa-check-double ms-2" style="font-size: 0.75rem; opacity: 0.7;"></i>
+                            </div>
+                            <div style="word-break: break-word;">${message}</div>
+                            <div class="text-muted small mt-2" style="font-size: 0.7rem; opacity: 0.8;">Just now</div>
+                        </div>
+                    `;
+                    
+                    chatBox.appendChild(newMessage);
+                    chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to latest message
+                    messageInput.value = ""; // Clear input
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            })
+            .finally(() => {
+                // Restore button state
+                sendButton.innerHTML = originalContent;
+                sendButton.disabled = false;
+            });
+        });
+    });
+</script>
+{% endblock %}
