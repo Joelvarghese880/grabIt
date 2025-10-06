@@ -1,0 +1,374 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Your Application</title>
+   
+    <!-- Link to external CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap-5.0.5-alpha.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <!-- Modern Font -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #1a1b41;
+            --light-color: #f8f9fa;
+            --success-color: #4cc9f0;
+            --error-color: #ef476f;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-color), var(--accent-color));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(67, 97, 238, 0.1),
+                rgba(72, 149, 239, 0.1),
+                rgba(76, 201, 240, 0.1)
+            );
+            transform: rotate(45deg);
+            z-index: -1;
+        }
+        
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--dark-color);
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 12px;
+        }
+        
+        h2::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        form {
+            text-align: left;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 6px;
+            text-align: left;
+            color: var(--dark-color);
+            font-size: 14px;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            outline: none;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        /* Fixed error message display */
+        .messages {
+            text-align: center;
+            color: var(--error-color);
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: rgba(239, 71, 111, 0.1);
+        }
+        
+        .messages:empty {
+            display: none;
+        }
+        
+        .messages p {
+            margin: 5px 0;
+        }
+        
+        /* Display non-field errors from Django form */
+        .form-errors {
+            color: var(--error-color);
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: rgba(239, 71, 111, 0.1);
+        }
+        
+        .form-errors:empty {
+            display: none;
+        }
+        
+        .register-link {
+            margin-top: 25px;
+            display: block;
+            font-size: 15px;
+            color: #666;
+        }
+        
+        .register-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .register-link a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #999;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background-color: #ddd;
+        }
+        
+        .divider span {
+            padding: 0 10px;
+            font-size: 14px;
+        }
+        
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-btn.google {
+            color: #DB4437;
+        }
+        
+        .social-btn.facebook {
+            color: #4267B2;
+        }
+        
+        .social-btn.twitter {
+            color: #1DA1F2;
+        }
+        
+        /* Error field highlighting */
+        .error input {
+            border-color: var(--error-color);
+            background-color: rgba(239, 71, 111, 0.05);
+        }
+        
+        .field-error {
+            color: var(--error-color);
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        /* Animated background effect */
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .container {
+                width: 90%;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome Back</h2>
+        
+        <!-- Authentication Error Messages -->
+        {% if form.errors %}
+        <div class="form-errors">
+            <i class="fas fa-exclamation-circle"></i> 
+            {% if form.non_field_errors %}
+                {{ form.non_field_errors.0 }}
+            {% else %}
+                Please check your username and password and try again.
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+           
+            <!-- Username Input -->
+            <div class="form-group {% if form.username.errors %}error{% endif %}">
+                <label for="id_username">Username</label>
+                <div class="input-group">
+                    <i class="input-icon fas fa-user"></i>
+                    {{ form.username }}
+                </div>
+                {% if form.username.errors %}
+                <span class="field-error">{{ form.username.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <!-- Password Input -->
+            <div class="form-group {% if form.password.errors %}error{% endif %}">
+                <label for="id_password">Password</label>
+                <div class="input-group">
+                    <i class="input-icon fas fa-lock"></i>
+                    {{ form.password }}
+                </div>
+                {% if form.password.errors %}
+                <span class="field-error">{{ form.password.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+        
+        <div class="divider">
+            <span>or continue with</span>
+        </div>
+        
+        <div class="social-login">
+            <div class="social-btn google">
+                <i class="fab fa-google"></i>
+            </div>
+            <div class="social-btn facebook">
+                <i class="fab fa-facebook-f"></i>
+            </div>
+            <div class="social-btn twitter">
+                <i class="fab fa-twitter"></i>
+            </div>
+        </div>
+        
+        <!-- Django Messages Framework -->
+        <div class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p><i class="fas fa-exclamation-circle"></i> {{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <p class="register-link">New user? <a href="{% url 'register' %}">Create an account</a></p>
+    </div>

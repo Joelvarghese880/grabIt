@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
+
+<!--====== HERO PART START ======-->
+<section id="home" class="hero-area bg_cover">
+    <div class="container">
+        <div class="row">
+            <div class="mx-auto col-lg-9 col-xl-9 col-md-10">
+                <div class="text-center hero-content">
+                    <h1 class="mb-30 wow fadeInUp" data-wow-delay=".2s">Welcome to GrabIt</h1>
+                    <p class="wow fadeInUp" data-wow-delay=".4s">For quick and easy lease</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--====== HERO PART END ======-->
+
+<!--====== SEARCH PART START ======-->
+<div class="search-area">
+    <div class="container">
+        <div class="search-wrapper">
+            <form action="{% url 'listings' %}" method="GET">
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 col-sm-5 col-10">
+                        <div class="search-input">
+                            <label for="keyword"><i class="lni lni-search-alt theme-color"></i></label>
+                            <input type="text" name="q" id="keyword" placeholder="Product keyword" value="{{ query }}">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-5 col-10">
+                        <div class="search-input">
+                            <label for="category"><i class="lni lni-grid-alt theme-color"></i></label>
+                            <select name="category" id="category">
+                                <option value="" selected>All Categories</option>
+                                <option value="vehicle" {% if category == "vehicle" %}selected{% endif %}>Vehicle</option>
+                                <option value="property" {% if category == "property" %}selected{% endif %}>Real Estate</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-5 col-10">
+                        <div class="search-input">
+                            <label for="location"><i class="lni lni-map-marker theme-color"></i></label>
+                            <select name="location" id="location">
+                                <option value="" selected>All Locations</option>
+                                <option value="Alappuzha" {% if location == "Alappuzha" %}selected{% endif %}>Alappuzha</option>
+                                <option value="Kochi" {% if location == "Kochi" %}selected{% endif %}>Kochi</option>
+                                <option value="Trivandrum" {% if location == "Trivandrum" %}selected{% endif %}>Trivandrum</option>
+                                <option value="Kottayam" {% if location == "Kottayam" %}selected{% endif %}>Kottayam</option>
+                                <option value="Kollam" {% if location == "Kollam" %}selected{% endif %}>Kollam</option>
+                                <option value="Pathanamthitta" {% if location == "Pathanamthitta" %}selected{% endif %}>Pathanamthitta</option>
+                                <option value="Idukki" {% if location == "Idukki" %}selected{% endif %}>Idukki</option>
+                                <option value="Palakkad" {% if location == "Palakkad" %}selected{% endif %}>Palakkad</option>
+                                <option value="Malappuram" {% if location == "Malappuram" %}selected{% endif %}>Malappuram</option>
+                                <option value="Kozhikode" {% if location == "Kozhikode" %}selected{% endif %}>Kozhikode</option>
+                                <option value="Wayanad" {% if location == "Wayanad" %}selected{% endif %}>Wayanad</option>
+                                <option value="Kannur" {% if location == "Kannur" %}selected{% endif %}>Kannur</option>
+                                <option value="Thrissur" {% if location == "Thrissur" %}selected{% endif %}>Thrissur</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-5 col-10">
+                        <div class="search-btn">
+                            <button type="submit" class="main-btn btn-hover">Search <i class="lni lni-search-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
+<!--====== SEARCH PART END ======-->
+
+<!--====== CATEGORY LIST PART START ======-->
+<section class="category-list-area pt-130">
+    <div class="container">
+        <div class="category-list-wrapper">
+           <!-- Vehicles Category -->
+            <div class="category-list-item">
+                <a href="{% url 'listings' %}?category=vehicle">
+                    <div class="icon">
+                    <i class="lni lni-car"></i>
+                    </div>
+                    <h3>Vehicles</h3>
+                </a>
+            </div>
+
+            <!-- Real Estates Category -->
+            <div class="category-list-item">
+                <a href="{% url 'listings' %}?category=property">
+                    <div class="icon">
+                        <i class="lni lni-apartment"></i>
+                    </div>
+                    <h3>Real Estates</h3>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</section>
+<!--====== CATEGORY LIST PART END ======-->
+
+
+<!--====== LATEST PRODUCT PART START ======-->
+<section class="latest-product-area pt-130 pb-110">
+    <div class="container">
+        <div class="row">
+            <div class="mx-auto col-xl-6 col-lg-7 col-md-10">
+                <div class="text-center section-title mb-60">
+                    <h1>Latest Listings</h1>
+                    <p>Find the newest listings for vehicles and properties.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row latest-product-grid">
+            {% for listing in latest_listings %}
+            <div class="col-lg-3 col-md-4 col-sm-6">  <!-- Medium grid size -->
+                <div class="single-product medium-card"> <!-- Medium size class -->
+                    <div class="product-img">
+                        <a href="#">
+                            <img src="{{ listing.image.url }}" alt="{{ listing.title }}">
+                        </a>
+                    </div>
+
+                    <div class="product-content">
+                        <h5 class="name"><a href="#">{{ listing.title }}</a></h5>
+                        <p class="medium-text">{{ listing.description|truncatechars:80 }}</p>
+                        <p class="fw-bold price-medium">
+                            {% if listing.price_per_day %}
+                                {{ listing.price_per_day }} ₹ per day
+                            {% else %}
+                                {{ listing.price }} ₹ per day
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'listing_detail' listing_type=listing.listing_type listing_id=listing.id %}" class="btn btn-sm btn-primary">View Details</a>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!--====== LATEST PRODUCT PART END ======-->
+
+
+
+<!-- Tiny Slider Activation -->
+<script>
+    var slider = tns({
+        container: '.latest-product-carousel',
+        items: 3,
+        slideBy: 'page',
+        autoplay: true,
+        controls: false,
+        nav: true,
+        autoplayTimeout: 5000,
+        autoplayButtonOutput: false,
+        mouseDrag: true,
+        responsive: {
+            0: { items: 1 },
+            768: { items: 2 },
+            1024: { items: 3 }
+        }
+    });
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+
+<br><br><br><br>
+<div class="container py-5">
+    <h2 class="text-center mb-4">User Dashboard</h2>
+
+    <div class="row">
+        <!-- ✅ User's Bookings Section -->
+
+            <div class="col-md-6">
+                <h4>Your Bookings</h4>
+                <ul class="list-group">
+                    {% for booking in user_bookings %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>
+                                {% if booking.vehicle %}
+                                    {{ booking.vehicle.title }}
+                                {% else %}
+                                    {{ booking.property.title }}
+                                {% endif %}
+                            </strong> 
+                            <br>
+                            From: {{ booking.start_date }} To: {{ booking.end_date }} <br>
+                            Status: 
+                            <span class="badge 
+                                {% if booking.status == 'pending' %}bg-warning 
+                                {% elif booking.status == 'confirmed' %}bg-success 
+                                {% else %}bg-danger{% endif %}">
+                                {{ booking.status }}
+                            </span>
+                        </div>
+
+                        <div>
+                            {% if booking.status == "pending" %}
+                                <a href="{% url 'user_cancel_booking' booking.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                            {% elif booking.status == "confirmed" %}
+                                <a href="{% url 'dummy_payment' booking.id %}" class="btn btn-primary btn-sm">Pay Now</a>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center">No bookings made yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+
+        <!-- ✅ Owner's Received Bookings Section -->
+        <div class="col-md-6">
+            <h4>Bookings for Your Listings</h4>
+            <ul class="list-group">
+                {% for booking in owner_bookings %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>
+                            {% if booking.vehicle %}
+                                {{ booking.vehicle.title }}
+                            {% else %}
+                                {{ booking.property.title }}
+                            {% endif %}
+                        </strong>
+                        <br>
+                        Booked by: <strong>{{ booking.user.username }}</strong> <br>
+                        From: {{ booking.start_date }} To: {{ booking.end_date }} <br>
+                        Status: 
+                        <span class="badge 
+                            {% if booking.status == 'pending' %}bg-warning 
+                            {% elif booking.status == 'confirmed' %}bg-success 
+                            {% else %}bg-danger{% endif %}">
+                            {{ booking.status }}
+                        </span>
+                    </div>
+
+                    {% if booking.status == "pending" %}
+                        <div>
+                            <a href="{% url 'confirm_booking' booking.id %}" class="btn btn-success btn-sm">Confirm</a>
+                            <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                        </div>
+                    {% endif %}
+                </li>
+                {% empty %}
+                <li class="list-group-item text-center">No bookings for your listings.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+<script>
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/booking_status/");
+
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        const bookingId = data.booking_id;
+        const status = data.status;
+
+        // Update the status in the dashboard
+        const statusElement = document.getElementById(`booking-status-${bookingId}`);
+        if (statusElement) {
+            statusElement.textContent = status;
+            statusElement.classList.remove("text-warning", "text-success", "text-danger");
+
+            if (status === "confirmed") {
+                statusElement.classList.add("text-success");
+            } else if (status === "canceled") {
+                statusElement.classList.add("text-danger");
+            }
+        }
+    };
+</script>
+
+{% endblock %}

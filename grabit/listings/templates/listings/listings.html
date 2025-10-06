@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<br><br><br>
+<div class="container py-5">
+    <h2 class="text-center mb-4">Listings</h2>
+    
+    <ul class="nav nav-tabs justify-content-center mb-4" id="listingTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="vehicles-tab" data-bs-toggle="tab" data-bs-target="#vehicles" type="button" role="tab" aria-controls="vehicles" aria-selected="true">Vehicles</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab" aria-controls="properties" aria-selected="false">Properties</button>
+        </li>
+    </ul>
+    
+    <div class="tab-content" id="listingTabsContent">
+        <!-- ✅ Vehicles Listing -->
+        <div class="tab-pane fade show active" id="vehicles" role="tabpanel" aria-labelledby="vehicles-tab">
+            <div class="row">
+                {% for vehicle in vehicles %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <img src="{{ vehicle.image.url }}" class="card-img-top" alt="{{ vehicle.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ vehicle.title }}</h5>
+                            <p class="card-text">{{ vehicle.description|truncatechars:100 }}</p>
+                            <p class="fw-bold">{{ vehicle.price_per_day }} ₹ per day</p>
+                            <p class="text-muted"><i class="lni lni-map-marker"></i> {{ vehicle.location }}</p>
+
+                            <!-- ✅ Buttons -->
+                            <div class="d-flex justify-content-between">
+                                {% if user.is_authenticated %}
+                                    {% if user != vehicle.owner %}
+                                        <a href="{% url 'book_listing' listing_type='vehicle' listing_id=vehicle.id %}" class="btn btn-primary btn-sm">Book Now</a>
+                                        <a href="{% url 'chat_room' listing_type='vehicle' listing_id=vehicle.id %}" class="btn btn-primary btn-sm">Chat with Owner</a>
+
+
+
+                                    {% else %}
+                                        <form action="{% url 'delete_listing' listing_type='vehicle' listing_id=vehicle.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm">Remove Listing</button>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center">No vehicle listings available.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- ✅ Properties Listing -->
+        <div class="tab-pane fade" id="properties" role="tabpanel" aria-labelledby="properties-tab">
+            <div class="row">
+                {% for property in properties %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <img src="{{ property.image.url }}" class="card-img-top" alt="{{ property.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ property.title }}
+                                {% if property.is_best_deal %}
+                                <span class="badge bg-success">Best Deal</span>
+                                {% endif %}
+                            </h5>
+                            <p class="card-text">{{ property.description|truncatechars:100 }}</p>
+                            <p class="fw-bold">{{ property.price }} ₹ per day</p>
+                            <p class="text-muted"><i class="lni lni-map-marker"></i> {{ property.address }}</p>
+
+                            <!-- ✅ Buttons -->
+                            <div class="d-flex justify-content-between">
+                                {% if user.is_authenticated %}
+                                    {% if user != property.owner %}
+                                        <a href="{% url 'book_listing' listing_type='property' listing_id=property.id %}" class="btn btn-primary btn-sm">Book Now</a>
+                                        <a href="{% url 'chat_room' listing_type='property' listing_id=property.id %}" class="btn btn-primary btn-sm">Chat with Owner</a>
+
+                                    {% else %}
+                                        <form action="{% url 'delete_listing' listing_type='property' listing_id=property.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm">Remove Listing</button>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center">No property listings available.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

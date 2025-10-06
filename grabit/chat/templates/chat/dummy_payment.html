@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <br><br><br>
+    <h2 class="text-center mt-5">Payment Gateway</h2>
+    <div class="payment-box shadow-lg p-4 mx-auto mt-3">
+        <h5>Pay for: <strong>{{ booking.listing.title }}</strong></h5>
+        <p>Total Amount: ₹{{ booking.total_price }}</p>
+
+        <form id="paymentForm">
+            <label>Card Number</label>
+            <input type="text" class="form-control" placeholder="1234 5678 9012 3456" required>
+            
+            <label>Expiry Date</label>
+            <input type="text" class="form-control" placeholder="MM/YY" required>
+            
+            <label>CVV</label>
+            <input type="text" class="form-control" placeholder="123" required>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">Pay Now</button>
+        </form>
+    </div>
+    <br><br>
+</div>
+
+<script>
+document.getElementById("paymentForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    alert("Payment Successful!");
+    window.location.href = "{% url 'dashboard' %}";  // Redirect back to dashboard
+});
+</script>
+
+<style>
+    .payment-box {
+        max-width: 400px;
+        background: #fff;
+        border-radius: 10px;
+        text-align: center;
+    }
+</style>
+{% endblock %}

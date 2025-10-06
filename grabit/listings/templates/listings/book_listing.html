@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<br><br><br>
+<div class="container py-5">
+    <h2 class="text-center mb-4">Book {{ listing.title }}</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card p-4 shadow">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Start Date:</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control" required onchange="checkAvailability()">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">End Date:</label>
+                        <input type="date" id="end_date" name="end_date" class="form-control" required onchange="checkAvailability()">
+                    </div>
+                    <div id="availability_message" class="mb-3"></div>
+                    <button type="submit" class="btn btn-success w-100">Confirm Booking</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function checkAvailability() {
+        let startDate = document.getElementById("start_date").value;
+        let endDate = document.getElementById("end_date").value;
+        let listingType = "{{ listing_type }}";  // ✅ Pass from view
+        let listingId = "{{ listing.id }}";
+
+        if (startDate && endDate) {
+            fetch(`/check_availability/?listing_type=${listingType}&listing_id=${listingId}&start_date=${startDate}&end_date=${endDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    let messageBox = document.getElementById("availability_message");
+                    if (data.available) {
+                        messageBox.innerHTML = "<span style='color:green;'>Available for booking ✅</span>";
+                    } else {
+                        messageBox.innerHTML = "<span style='color:red;'>Not available ❌</span>";
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+</script>
+{% endblock %}

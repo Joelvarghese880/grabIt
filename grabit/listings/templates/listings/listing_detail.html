@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <br><br><br>
+            <img src="{{ listing.image.url }}" class="img-fluid" alt="{{ listing.title }}">
+            <br><br>
+        </div>
+        <div class="col-md-6">
+            <br><br><br>
+            <h1>{{ listing.title }}</h1>
+            <p>{{ listing.description }}</p>
+            <p><strong>Price:</strong> 
+                {% if listing_type == "vehicle" %}
+                    {{ listing.price_per_day }} ₹ per day
+                {% else %}
+                    {{ listing.price }} ₹ per day
+                {% endif %}
+            </p>
+            <p><strong>Location:</strong> {{ listing.location }} {{listing.address}}</p>
+            <a href="{% url 'book_listing' listing_type=listing_type listing_id=listing.id %}" class="btn btn-success">Book Now</a>
+            
+        </div>
+    </div>
+
+</div>
+{% endblock %}
